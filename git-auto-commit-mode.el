@@ -54,6 +54,11 @@
         nil
       tried-dir)))
 
+(defun gac-branches (filename)
+  "zzz"
+  (shell-command-to-string
+   (concat "cd " filename " ; " "git branch")))
+
 (defun gac-relative-file-name (filename)
   "Find the path to the filename relative to the git directory"
   (let* ((git-dir
