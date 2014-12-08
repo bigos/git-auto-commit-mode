@@ -56,6 +56,11 @@
                     git-dir "" filename))))
     relative-file-name))
 
+(defun gac-shel-command-in-dir (command dir)
+  "zzz"
+  (shell-command (concat "cd " dir " ; " command)))
+
+
 (defun gac-password (proc string)
   "Ask the user for a password when necessary."
   (let (ask)
