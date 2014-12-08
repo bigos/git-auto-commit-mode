@@ -78,6 +78,10 @@
       (if (string-match "^\\* .*" el)
           (setq res (substring el 2))))))
 
+
+(defun gac-branch-list (filename)
+  (delete "*" (split-string (gac-raw-branches filename))))
+
 (defun gac-relative-file-name (filename)
   "Find the path to the filename relative to the git directory"
   (let* ((git-dir
