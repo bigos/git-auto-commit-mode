@@ -44,20 +44,39 @@
   :risky t)
 (make-variable-buffer-local 'gac-automatically-push-p)
 
-(defun gac-git-dir (directory)
-  "find repository directory"
+(defun gac-chomp (str)
+  "Chomp leading and tailing whitespace from STR."
+  (replace-regexp-in-string (rx (or (: bos (* (any " \t\n")))
+                                    (: (* (any " \t\n")) eos)))
+                            ""
+                            str))
+
+(defun gac-git-dir (filename)
+  "Find repository directory for FILENAME, or return nil."
   (let ((tried-dir
          (replace-regexp-in-string
           "\n+$" "" (shell-command-to-string
-                     (concat "cd " directory " ; " "git rev-parse --show-toplevel")))))
+                     (concat "cd " (file-name-directory filename) " ; " "git rev-parse --show-toplevel")))))
     (if (string= "fatal: " (substring tried-dir 0 7))
         nil
       tried-dir)))
 
-(defun gac-branches (filename)
-  "zzz"
-  (shell-command-to-string
-   (concat "cd " filename " ; " "git branch")))
+(defun gac-raw-branches (filename)
+  "Zzz FILENAME."
+  (let* ((git-directory (gac-git-dir filename))
+         (branches
+          (shell-command-to-string
+           (concat "cd " git-directory " ; " "git branch"))))
+    branches))
+
+(defun gac-current-branch (filename)
+  "Current git branch of FILENAME."
+  (let ((res))
+    (dolist (el
+             (split-string (gac-raw-branches filename) "\n")
+             res)
+      (if (string-match "^\\* .*" el)
+          (setq res (substring el 2))))))
 
 (defun gac-relative-file-name (filename)
   "Find the path to the filename relative to the git directory"
