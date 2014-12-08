@@ -44,12 +44,12 @@
   :risky t)
 (make-variable-buffer-local 'gac-automatically-push-p)
 
-(defun gac-git-dir (filename)
+(defun gac-git-dir (directory) ; TODO: replace directory with directory
   "find repository directory"
   (let ((tried-dir
          (replace-regexp-in-string
           "\n+$" "" (shell-command-to-string
-                     (concat "cd " filename " ; " "git rev-parse --show-toplevel")))))
+                     (concat "cd " directory " ; " "git rev-parse --show-toplevel")))))
     (if (string= "fatal: " (substring tried-dir 0 7))
         nil
       tried-dir)))
