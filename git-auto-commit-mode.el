@@ -44,7 +44,7 @@
   :risky t)
 (make-variable-buffer-local 'gac-automatically-push-p)
 
-(defun gac-git-dir (directory) ; TODO: replace directory with directory
+(defun gac-git-dir (directory)
   "find repository directory"
   (let ((tried-dir
          (replace-regexp-in-string
