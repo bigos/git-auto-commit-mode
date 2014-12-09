@@ -84,8 +84,7 @@
   "Switch to FILENAME's BRANCH creating it if neccesary."
   (let ((current-branch (gac-current-branch filename))
         (branch-list (gac-branch-list filename))
-        (git-directory (gac-git-dir filename))
-        (shell-output))
+        (git-directory (gac-git-dir filename)))
     (when (not (string-match "^wip\\/.*" current-branch))
       (shell-command
        (concat "cd " git-directory
@@ -97,7 +96,13 @@
                branch)))))
 
 (defun gac-to-wip-branch (filename)
-  "Zzz FILENAME.")
+  "Zzz FILENAME."
+  (let ((current-branch (gac-current-branch filename))
+        (git-directory (gac-git-dir filename)))
+    (when (not (string-match "^wip\\/.*" current-branch))
+      (gac-checkout-branch-or-create
+       filename
+       (concat "wip/" current-branch)))))
 
 (defun gac-from-wip-brach (filename)
   "Zzz FILENAME.")
