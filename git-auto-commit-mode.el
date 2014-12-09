@@ -71,14 +71,20 @@
             nil)))
     branches))
 
+(defun gac-split-for-current-branch (raw-branches)
+  (split-string raw-branches "\n"))
+
 (defun gac-current-branch (filename)
   "Current git branch of FILENAME."
-  (let ((res))
-    (dolist (el
-             (split-string (gac-raw-branches filename) "\n")
-             res)
-      (if (string-match "^\\* .*" el)
-          (setq res (substring el 2))))))
+  (let ((res)
+        (raw-branches (gac-raw-branches filename)))
+    (if raw-branches
+        (dolist (el
+                 (gac-split-for-current-branch raw-branches)
+                 res)
+          (if (string-match "^\\* .*" el)
+              (setq res (substring el 2))))
+      nil)))
 
 
 (defun gac-split-and-clean-raw-branches (branches)
