@@ -81,6 +81,22 @@
         (and (re-search-forward "^\\*\\s-+\\(.*\\)" nil t)
              (match-string 1))))))
 
+(defun gac-checkout-wip-branch (filename branch)
+  "Switch to FILENAME's BRANCH creating it if neccesary."
+  (let ((current-branch (gac-current-branch filename))
+        (branch-list (gac-branch-list filename))
+        (git-directory (gac-git-dir filename))
+        (shell-output))
+    (when (not (string= (substring current-branch 0 4) "wip/"))
+      (shell-command
+       (concat "cd " git-directory
+               " ; "
+               "git checkout "
+               (if (member branch branch-list)
+                   ""
+                 " -b ")
+               branch)))))
+
 (defun gac-branch-list-clean (branches)
   "Remove junk from BRANCHES."
   (delete "*" (split-string branches )))
