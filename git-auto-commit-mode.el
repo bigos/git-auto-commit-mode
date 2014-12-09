@@ -87,7 +87,7 @@
         (branch-list (gac-branch-list filename))
         (git-directory (gac-git-dir filename))
         (shell-output))
-    (when (not (string= (substring current-branch 0 4) "wip/"))
+    (when (not (string-match "^wip\\/.*" current-branch))
       (shell-command
        (concat "cd " git-directory
                " ; "
