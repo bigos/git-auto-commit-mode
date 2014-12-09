@@ -81,14 +81,15 @@
         (and (re-search-forward "^\\*\\s-+\\(.*\\)" nil t)
              (match-string 1))))))
 
-(defun gac-split-and-clean-raw-branches (branches)
+(defun gac-branch-list-clean (branches)
+  "Remove junk from BRANCHES."
   (delete "*" (split-string branches )))
 
 (defun gac-branch-list (filename)
-  "Zzz FILENAME."
+  "List of git branches for FILENAME."
   (let ((raw-branches (gac-raw-branches filename)))
     (if raw-branches
-        (gac-split-and-clean-raw-branches raw-branches )
+        (gac-branch-list-clean raw-branches )
       nil)))
 
 (defun gac-relative-file-name (filename)
