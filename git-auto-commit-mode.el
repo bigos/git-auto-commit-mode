@@ -85,15 +85,14 @@
   (let ((current-branch (gac-current-branch filename))
         (branch-list (gac-branch-list filename))
         (git-directory (gac-git-dir filename)))
-    (when (not (string-match "^wip\\/.*" current-branch))
-      (shell-command
-       (concat "cd " git-directory
-               " ; "
-               "git checkout "
-               (if (member branch branch-list)
-                   ""
-                 " -b ")
-               branch)))))
+    (shell-command
+     (concat "cd " git-directory
+             " ; "
+             "git checkout "
+             (if (member branch branch-list)
+                 ""
+               " -b ")
+             branch))))
 
 (defun gac-to-wip-branch (filename)
   "Zzz FILENAME."
@@ -105,7 +104,13 @@
        (concat "wip/" current-branch)))))
 
 (defun gac-from-wip-brach (filename)
-  "Zzz FILENAME.")
+  "Zzz FILENAME."
+  (let ((current-branch (gac-current-branch filename))
+        (git-directory (gac-git-dir filename)))
+    (when (string-match "^wip/.*" current-branch)
+      (gac-checkout-branch-or-create
+       filename
+       (substring current-branch 4)))))
 
 (defun gac-branch-list-clean (branches)
   "Remove junk from BRANCHES."
