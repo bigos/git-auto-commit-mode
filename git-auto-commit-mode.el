@@ -62,13 +62,12 @@
       tried-dir)))
 
 (defun gac-raw-branches (filename)
-  "Zzz FILENAME."
+  "Raw git branches of FILENAME."
   (let* ((git-directory (gac-git-dir filename))
          (branches
           (if (gac-git-dir filename)
               (shell-command-to-string
-               (concat "cd " git-directory " ; " "git branch"))
-            nil)))
+               (concat "cd " git-directory " ; " "git branch")))))
     branches))
 
 (defun gac-current-branch (filename)
@@ -81,7 +80,7 @@
         (and (re-search-forward "^\\*\\s-+\\(.*\\)" nil t)
              (match-string 1))))))
 
-(defun gac-checkout-wip-branch (filename branch)
+(defun gac-checkout-branch-or-create (filename branch)
   "Switch to FILENAME's BRANCH creating it if neccesary."
   (let ((current-branch (gac-current-branch filename))
         (branch-list (gac-branch-list filename))
@@ -96,6 +95,12 @@
                    ""
                  " -b ")
                branch)))))
+
+(defun gac-to-wip-branch (filename)
+  "Zzz FILENAME.")
+
+(defun gac-from-wip-brach (filename)
+  "Zzz FILENAME.")
 
 (defun gac-branch-list-clean (branches)
   "Remove junk from BRANCHES."
