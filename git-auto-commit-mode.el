@@ -57,7 +57,7 @@
          (replace-regexp-in-string
           "\n+$" "" (shell-command-to-string
                      (concat "cd " (file-name-directory filename) " ; " "git rev-parse --show-toplevel")))))
-    (if (string= "fatal: " (substring tried-dir 0 7))
+    (if (string-match "\\:" tried-dir)
         nil
       tried-dir)))
 
@@ -65,8 +65,10 @@
   "Zzz FILENAME."
   (let* ((git-directory (gac-git-dir filename))
          (branches
-          (shell-command-to-string
-           (concat "cd " git-directory " ; " "git branch"))))
+          (if (gac-git-dir filename)
+              (shell-command-to-string
+               (concat "cd " git-directory " ; " "git branch"))
+            nil)))
     branches))
 
 (defun gac-current-branch (filename)
@@ -79,11 +81,18 @@
           (setq res (substring el 2))))))
 
 
+(defun gac-split-and-clean-raw-branches (branches)
+  (delete "*" (split-string branches )))
+
 (defun gac-branch-list (filename)
-  (delete "*" (split-string (gac-raw-branches filename))))
+  "Zzz FILENAME."
+  (let ((raw-branches (gac-raw-branches filename)))
+    (if raw-branches
+        (gac-split-and-clean-raw-branches raw-branches )
+      nil)))
 
 (defun gac-relative-file-name (filename)
-  "Find the path to the filename relative to the git directory"
+  "Find the path to the FILENAME relative to the git directory."
   (let* ((git-dir
           (replace-regexp-in-string
            "\n+$" "" (shell-command-to-string
