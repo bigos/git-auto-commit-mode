@@ -169,27 +169,34 @@ user for one when it does."
   (message "git %s" (substring status 0 -1)))
 
 (defun gac-commit ()
-  "Commit `buffer-file-name' to git"
+  "Commit to git."
   (let* ((filename (buffer-file-name))
          (relative-filename
           (gac-relative-file-name filename))
          (current-branch (gac-current-branch filename))
          (wip-branch)
          (git-directory (gac-git-dir filename)))
+    (print "paths ")
+    (print filename)
+    (print relative-filename)
     (shell-command
      (concat "cd " git-directory
              " ; git add " filename
-             " ; git commit " filename
-             " -m 'no msg' "))
+             " ; git commit -a" " -m '" relative-filename "'"))
+    (print "finished saving stuff")
     (gac-to-wip-branch filename)
     (setf wip-branch (gac-current-branch filename))
+    (print (concat "------------ " wip-branch))
+    (print "going to save in wip/")
     (shell-command
      (concat "cd " git-directory
-             " ; git checkout " current-branch
-             " ; git commit -a" " -m '" relative-filename "'"))
+             " ; git merge " current-branch
+             " ; git commit -am 'zzz'"))
+    (print "finished in wip/")
     (gac-from-wip-brach filename)
-    (shell-command (concat "cd " git-directory
-                           " ; git checkout " wip-branch " -- " relative-filename))))
+    (shell-command
+     (concat "cd " git-directory
+           ))))
 
 (defun gac-push ()
   "Push changes to the repository to the current upstream. This
