@@ -165,10 +165,13 @@ user for one when it does."
   "Commit `buffer-file-name' to git"
   (let* ((filename (buffer-file-name))
          (relative-filename
-          (gac-relative-file-name filename)))
-    (shell-command
-     (concat "git add " filename
-             " && git commit -m '" relative-filename "'"))))
+          (gac-relative-file-name filename))
+         (git-directory (gac-git-dir filename))
+         (current-branch (gac-current-branch filename)))
+    (shell-command (concat "~/bin/wipscript.sh "
+                           git-directory " "
+                           relative-filename " "
+                           current-branch))))
 
 (defun gac-push ()
   "Push changes to the repository to the current upstream. This
