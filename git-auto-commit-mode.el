@@ -99,6 +99,7 @@
   (let ((current-branch (gac-current-branch filename))
         (git-directory (gac-git-dir filename)))
     (when (not (string-match "^wip\\/.*" current-branch))
+      (print "\nswitching to wip\n")
       (gac-checkout-branch-or-create
        filename
        (concat "wip/" current-branch)))))
@@ -108,6 +109,7 @@
   (let ((current-branch (gac-current-branch filename))
         (git-directory (gac-git-dir filename)))
     (when (string-match "^wip/.*" current-branch)
+      (print "\nreturning from wip")
       (gac-checkout-branch-or-create
        filename
        (substring current-branch 4)))))
@@ -170,10 +172,24 @@ user for one when it does."
   "Commit `buffer-file-name' to git"
   (let* ((filename (buffer-file-name))
          (relative-filename
-          (gac-relative-file-name filename)))
+          (gac-relative-file-name filename))
+         (current-branch (gac-current-branch filename))
+         (wip-branch)
+         (git-directory (gac-git-dir filename)))
     (shell-command
-     (concat "git add " filename
-             " && git commit -m '" relative-filename "'"))))
+     (concat "cd " git-directory
+             " ; git add " filename
+             " ; git commit " filename
+             " -m 'no msg' "))
+    (gac-to-wip-branch filename)
+    (setf wip-branch (gac-current-branch filename))
+    (shell-command
+     (concat "cd " git-directory
+             " ; git checkout " current-branch
+             " ; git commit -a" " -m '" relative-filename "'"))
+    (gac-from-wip-brach filename)
+    (shell-command (concat "cd " git-directory
+                           " ; git checkout " wip-branch " -- " relative-filename))))
 
 (defun gac-push ()
   "Push changes to the repository to the current upstream. This
