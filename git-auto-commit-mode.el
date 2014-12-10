@@ -44,6 +44,85 @@
   :risky t)
 (make-variable-buffer-local 'gac-automatically-push-p)
 
+(defun gac-chomp (str)
+  "Chomp leading and tailing whitespace from STR."
+  (replace-regexp-in-string (rx (or (: bos (* (any " \t\n")))
+                                    (: (* (any " \t\n")) eos)))
+                            ""
+                            str))
+
+(defun gac-git-dir (filename)
+  "Find repository directory for FILENAME, or return nil."
+  (let ((tried-dir
+         (replace-regexp-in-string
+          "\n+$" "" (shell-command-to-string
+                     (concat "cd " (file-name-directory filename) " ; " "git rev-parse --show-toplevel")))))
+    (if (string-match "\\:" tried-dir)
+        nil
+      tried-dir)))
+
+(defun gac-raw-branches (filename)
+  "Raw git branches of FILENAME."
+  (let* ((git-directory (gac-git-dir filename))
+         (branches
+          (if (gac-git-dir filename)
+              (shell-command-to-string
+               (concat "cd " git-directory " ; " "git branch")))))
+    branches))
+
+(defun gac-current-branch (filename)
+  "Current git branch of FILENAME."
+  (let ((gb-output (gac-raw-branches filename)))
+    (when gb-output
+      (with-temp-buffer
+        (insert gb-output)
+        (goto-char (point-min))
+        (and (re-search-forward "^\\*\\s-+\\(.*\\)" nil t)
+             (match-string 1))))))
+
+(defun gac-checkout-branch-or-create (filename branch)
+  "Switch to FILENAME's BRANCH creating it if neccesary."
+  (let ((current-branch (gac-current-branch filename))
+        (branch-list (gac-branch-list filename))
+        (git-directory (gac-git-dir filename)))
+    (shell-command
+     (concat "cd " git-directory
+             " ; "
+             "git checkout "
+             (if (member branch branch-list)
+                 ""
+               " -b ")
+             branch))))
+
+(defun gac-to-wip-branch (filename)
+  "Zzz FILENAME."
+  (let ((current-branch (gac-current-branch filename))
+        (git-directory (gac-git-dir filename)))
+    (when (not (string-match "^wip\\/.*" current-branch))
+      (gac-checkout-branch-or-create
+       filename
+       (concat "wip/" current-branch)))))
+
+(defun gac-from-wip-brach (filename)
+  "Zzz FILENAME."
+  (let ((current-branch (gac-current-branch filename))
+        (git-directory (gac-git-dir filename)))
+    (when (string-match "^wip/.*" current-branch)
+      (gac-checkout-branch-or-create
+       filename
+       (substring current-branch 4)))))
+
+(defun gac-branch-list-clean (branches)
+  "Remove junk from BRANCHES."
+  (delete "*" (split-string branches )))
+
+(defun gac-branch-list (filename)
+  "List of git branches for FILENAME."
+  (let ((raw-branches (gac-raw-branches filename)))
+    (if raw-branches
+        (gac-branch-list-clean raw-branches )
+      nil)))
+
 (defun gac-relative-file-name (filename)
   "Find the path to the filename relative to the git directory"
   (let* ((git-dir
