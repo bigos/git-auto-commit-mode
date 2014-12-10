@@ -170,7 +170,7 @@ user for one when it does."
          (current-branch (gac-current-branch filename)))
     (shell-command (concat "~/bin/wipscript.sh "
                            git-directory " "
-                           relative-filename " "
+                           filename " "
                            current-branch))))
 
 (defun gac-push ()
