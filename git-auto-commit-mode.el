@@ -123,11 +123,13 @@ user for one when it does."
          (relative-filename
           (gac-relative-file-name filename))
          (git-directory (gac-git-dir filename))
-         (current-branch (gac-current-branch filename)))
-    (shell-command (concat "~/bin/wipscript.sh "
-                           git-directory " "
-                           filename " "
-                           current-branch))))
+         (current-branch (gac-current-branch filename))
+         (com (concat "~/bin/wipscript.sh "
+                      git-directory " "
+                      filename " "
+                      current-branch)))
+    (message "Executing git: %S" com)
+    (shell-command com)))
 
 (defun gac-push ()
   "Push changes to the repository to the current upstream. This
